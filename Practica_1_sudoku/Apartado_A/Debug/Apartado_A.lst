@@ -1,0 +1,169 @@
+
+Apartado_A.elf:     file format elf32-littlearm
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         000000d8  0c000000  0c000000  00008000  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .data         0000012c  0c0000d8  0c0000d8  000080d8  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  2 .debug_abbrev 00000073  00000000  00000000  00008204  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  3 .debug_info   000000de  00000000  00000000  00008277  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  4 .debug_line   000000a7  00000000  00000000  00008355  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  5 .debug_macinfo 000020fc  00000000  00000000  000083fc  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  6 .debug_loc    0000002c  00000000  00000000  0000a4f8  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  7 .debug_pubnames 00000022  00000000  00000000  0000a524  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  8 .debug_aranges 00000040  00000000  00000000  0000a548  2**3
+                  CONTENTS, READONLY, DEBUGGING
+  9 .debug_str    00000052  00000000  00000000  0000a588  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 10 .comment      0000002a  00000000  00000000  0000a5da  2**0
+                  CONTENTS, READONLY
+ 11 .ARM.attributes 00000030  00000000  00000000  0000a604  2**0
+                  CONTENTS, READONLY
+ 12 .debug_frame  00000030  00000000  00000000  0000a634  2**2
+                  CONTENTS, READONLY, DEBUGGING
+
+Disassembly of section .text:
+
+0c000000 <__c_copy_10>:
+// This function copies 25 words from one address (src) to another (dst)
+// src: pointer to the source block
+// dst: pointer to the destination block
+//------------------------------------------------------------------------------
+void __c_copy_10(int *src, int *dst)
+{
+ c000000:	e1a0c00d 	mov	ip, sp
+ c000004:	e92dd800 	push	{fp, ip, lr, pc}
+ c000008:	e24cb004 	sub	fp, ip, #4
+ c00000c:	e24dd010 	sub	sp, sp, #16
+ c000010:	e50b0018 	str	r0, [fp, #-24]	; 0xffffffe8
+ c000014:	e50b101c 	str	r1, [fp, #-28]	; 0xffffffe4
+	int i;
+	for(i = 0; i< 25; i++){
+ c000018:	e3a03000 	mov	r3, #0
+ c00001c:	e50b3010 	str	r3, [fp, #-16]
+ c000020:	ea00000c 	b	c000058 <__c_copy_10+0x58>
+		*dst = *src;
+ c000024:	e51b3018 	ldr	r3, [fp, #-24]	; 0xffffffe8
+ c000028:	e5932000 	ldr	r2, [r3]
+ c00002c:	e51b301c 	ldr	r3, [fp, #-28]	; 0xffffffe4
+ c000030:	e5832000 	str	r2, [r3]
+		dst++;
+ c000034:	e51b301c 	ldr	r3, [fp, #-28]	; 0xffffffe4
+ c000038:	e2833004 	add	r3, r3, #4
+ c00003c:	e50b301c 	str	r3, [fp, #-28]	; 0xffffffe4
+		src++;
+ c000040:	e51b3018 	ldr	r3, [fp, #-24]	; 0xffffffe8
+ c000044:	e2833004 	add	r3, r3, #4
+ c000048:	e50b3018 	str	r3, [fp, #-24]	; 0xffffffe8
+// dst: pointer to the destination block
+//------------------------------------------------------------------------------
+void __c_copy_10(int *src, int *dst)
+{
+	int i;
+	for(i = 0; i< 25; i++){
+ c00004c:	e51b3010 	ldr	r3, [fp, #-16]
+ c000050:	e2833001 	add	r3, r3, #1
+ c000054:	e50b3010 	str	r3, [fp, #-16]
+ c000058:	e51b3010 	ldr	r3, [fp, #-16]
+ c00005c:	e3530018 	cmp	r3, #24
+ c000060:	daffffef 	ble	c000024 <__c_copy_10+0x24>
+		*dst = *src;
+		dst++;
+		src++;
+	}
+}
+ c000064:	e24bd00c 	sub	sp, fp, #12
+ c000068:	e89d6800 	ldm	sp, {fp, sp, lr}
+ c00006c:	e12fff1e 	bx	lr
+
+0c000070 <start>:
+#------standard initial code
+# --- Setup interrupt / exception vectors
+.global    start
+.extern     __c_copy_10
+start:
+       B     Reset_Handler
+ c000070:	eaffffff 	b	c000074 <Reset_Handler>
+
+0c000074 <Reset_Handler>:
+################################################################################
+Reset_Handler:
+#
+// src = direccion origen de los datos
+// dst = direccion destino de los datos
+        LDR     sp,=STACK       /*  set up stack pointer (r13) */
+ c000074:	e59fd048 	ldr	sp, [pc, #72]	; c0000c4 <Done+0x8>
+
+        LDR     r0, =src //Cargamos en r0 la direccion origen de los datos
+ c000078:	e59f0048 	ldr	r0, [pc, #72]	; c0000c8 <Done+0xc>
+        LDR     r1, =dst1 //Cargamos en r1 la direccion destino de los datos
+ c00007c:	e59f1048 	ldr	r1, [pc, #72]	; c0000cc <Done+0x10>
+        BL      ARM_copy_10   //Llamamos a la funcion arm
+ c000080:	eb000005 	bl	c00009c <ARM_copy_10>
+
+//Volvemos a cargar las direcciones porque al llamar a una funcion se han borrado
+        LDR     r0, =src
+ c000084:	e59f003c 	ldr	r0, [pc, #60]	; c0000c8 <Done+0xc>
+        LDR     r1, =dst2
+ c000088:	e59f1040 	ldr	r1, [pc, #64]	; c0000d0 <Done+0x14>
+# function __c_copy is in copy.c
+
+        LDR     r3, = __c_copy_10
+ c00008c:	e59f3040 	ldr	r3, [pc, #64]	; c0000d4 <Done+0x18>
+        MOV     lr, pc
+ c000090:	e1a0e00f 	mov	lr, pc
+        BX      r3
+ c000094:	e12fff13 	bx	r3
+
+0c000098 <stop>:
+stop:
+        B       stop        /*  end of program */
+ c000098:	eafffffe 	b	c000098 <stop>
+
+0c00009c <ARM_copy_10>:
+# s—lo guardamos los registros que utiliza y que no tiene permiso para alterar
+
+//HAY QUE CAMBIAR LA MEMORIA PORQUE SI CARGAMOS MÁS DE 5 EN 5 NOS DA ERROR PORQUE OCUPA LA MEMORIA DE dist2
+################################################################################
+ARM_copy_10:
+        push {r0-r11}
+ c00009c:	e92d0fff 	push	{r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, sl, fp}
+		MOV r2, #1
+ c0000a0:	e3a02001 	mov	r2, #1
+
+0c0000a4 <Loop>:
+Loop:
+		CMP r2, #4
+ c0000a4:	e3520004 	cmp	r2, #4
+  		BGE Done
+ c0000a8:	aa000003 	bge	c0000bc <Done>
+        LDM r0!, {r3-r11} //Carga 9 valores de la fuente
+ c0000ac:	e8b00ff8 	ldm	r0!, {r3, r4, r5, r6, r7, r8, r9, sl, fp}
+        STM r1!, {r3-r11} //Escribimos 9 valores en el destino
+ c0000b0:	e8a10ff8 	stmia	r1!, {r3, r4, r5, r6, r7, r8, r9, sl, fp}
+		ADD r2, r2, #1
+ c0000b4:	e2822001 	add	r2, r2, #1
+		B Loop
+ c0000b8:	eafffff9 	b	c0000a4 <Loop>
+
+0c0000bc <Done>:
+  Done:
+        # restore the original registers
+        pop {r0-r11}
+ c0000bc:	e8bd0fff 	pop	{r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, sl, fp}
+        # return to the instruction that called the routine and to arm mode
+        BX      r14
+ c0000c0:	e12fff1e 	bx	lr
+ c0000c4:	0c7ff000 	.word	0x0c7ff000
+ c0000c8:	0c0000d8 	.word	0x0c0000d8
+ c0000cc:	0c00013c 	.word	0x0c00013c
+ c0000d0:	0c0001a0 	.word	0x0c0001a0
+ c0000d4:	0c000000 	.word	0x0c000000
